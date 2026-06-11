@@ -306,10 +306,12 @@ body.modal-open {
 .conversation-log-item-header {
     display: flex;
     justify-content: flex-end;
+    gap: 6px;
     margin-bottom: 4px;
 }
 
-.conversation-log-replay {
+.conversation-log-replay,
+.conversation-log-copy {
     border: 1px solid #c8d7f2;
     border-radius: 999px;
     background: #f8fbff;
@@ -320,8 +322,15 @@ body.modal-open {
     padding: 4px 10px;
 }
 
-.conversation-log-replay:active {
+.conversation-log-replay:active,
+.conversation-log-copy:active {
     background: #e8f0fe;
+}
+
+.conversation-log-copy.copied {
+    border-color: #34a853;
+    background-color: #e6f4ea;
+    color: #137333;
 }
 
 .conversation-log-row {

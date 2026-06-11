@@ -25,6 +25,7 @@ test('loads app shell and core browser modules', async ({ page }) => {
     await expect(page.locator('#conversationLogList')).toHaveCount(1);
     await expect(page.locator('#clearConversationLogBtn')).toHaveCount(1);
     await expect(page.locator('.conversation-log-replay')).toHaveCount(0);
+    await expect(page.locator('.conversation-log-copy')).toHaveCount(0);
     await expect(page.locator('#conversationLog')).toBeHidden();
 
     await expect(page.locator('#apiModal')).toBeVisible();
@@ -144,6 +145,7 @@ test('renders replay controls for conversation history entries', async ({ page }
         item.innerHTML = `
             <div class="conversation-log-item-header">
                 <button class="conversation-log-replay" type="button" aria-label="この翻訳を再生">再生</button>
+                <button class="conversation-log-copy" type="button" aria-label="この翻訳をコピー">コピー</button>
             </div>
             <div class="conversation-log-row">
                 <div class="conversation-log-label">原文</div>
@@ -161,6 +163,8 @@ test('renders replay controls for conversation history entries', async ({ page }
     await expect(page.locator('#conversationLog')).toBeVisible();
     await expect(page.locator('.conversation-log-replay')).toHaveText('再生');
     await expect(page.locator('.conversation-log-replay')).toHaveAttribute('aria-label', 'この翻訳を再生');
+    await expect(page.locator('.conversation-log-copy')).toHaveText('コピー');
+    await expect(page.locator('.conversation-log-copy')).toHaveAttribute('aria-label', 'この翻訳をコピー');
 });
 
 test('parses translator service stream lines and payloads', async ({ page }) => {

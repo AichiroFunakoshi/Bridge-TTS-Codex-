@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // TTS用の最終翻訳結果を保存
     let lastTranslationResult = '';
-    let copyStateTimeoutId = null;
+    const copyStateTimeoutIds = new WeakMap();
 
     // 翻訳品質警告の表示履歴（無限ループ防止）
     const translationQualityWarningHistory = new Map(); // key: originalText, value: warningCount
@@ -441,6 +441,16 @@ document.addEventListener('DOMContentLoaded', function() {
                 playConversationEntry(entry);
             });
 
+            const copyButton = document.createElement('button');
+            copyButton.className = 'conversation-log-copy';
+            copyButton.type = 'button';
+            copyButton.textContent = 'コピー';
+            copyButton.setAttribute('aria-label', 'この翻訳をコピー');
+            copyButton.addEventListener('click', (event) => {
+                event.stopPropagation();
+                copyTextToClipboard(entry.translation, copyButton);
+            });
+
             const originalRow = document.createElement('div');
             originalRow.className = 'conversation-log-row';
 
@@ -463,7 +473,7 @@ document.addEventListener('DOMContentLoaded', function() {
             translationTextElement.className = 'conversation-log-text';
             translationTextElement.textContent = entry.translation;
 
-            itemHeader.appendChild(replayButton);
+            itemHeader.append(replayButton, copyButton);
             originalRow.append(originalLabel, originalTextElement);
             translationRow.append(translationLabel, translationTextElement);
             item.append(itemHeader, originalRow, translationRow);
@@ -539,7 +549,11 @@ document.addEventListener('DOMContentLoaded', function() {
             event.stopPropagation();
         }
 
-        const textToCopy = lastTranslationResult.trim();
+        copyTextToClipboard(lastTranslationResult, copyTranslationBtn);
+    }
+
+    async function copyTextToClipboard(text, button) {
+        const textToCopy = text && text.trim();
         if (!textToCopy || !navigator.clipboard || typeof navigator.clipboard.writeText !== 'function') {
             errorMessage.textContent = 'このブラウザではコピー機能を利用できません';
             setTimeout(() => { errorMessage.textContent = ''; }, 3000);
@@ -548,24 +562,23 @@ document.addEventListener('DOMContentLoaded', function() {
 
         try {
             await navigator.clipboard.writeText(textToCopy);
-            if (copyTranslationBtn) {
-                const label = copyTranslationBtn.querySelector('span');
-                if (!label) {
-                    console.error('コピーボタンのラベル要素が見つかりません');
-                    return;
+            if (button) {
+                const label = button.querySelector('span') || button;
+                const originalLabel = label.textContent;
+
+                const activeTimeoutId = copyStateTimeoutIds.get(button);
+                if (activeTimeoutId) {
+                    clearTimeout(activeTimeoutId);
                 }
 
-                if (copyStateTimeoutId) {
-                    clearTimeout(copyStateTimeoutId);
-                }
-
-                copyTranslationBtn.classList.add('copied');
+                button.classList.add('copied');
                 label.textContent = 'コピー済み';
-                copyStateTimeoutId = setTimeout(() => {
-                    copyTranslationBtn.classList.remove('copied');
-                    label.textContent = 'コピー';
-                    copyStateTimeoutId = null;
+                const timeoutId = setTimeout(() => {
+                    button.classList.remove('copied');
+                    label.textContent = originalLabel || 'コピー';
+                    copyStateTimeoutIds.delete(button);
                 }, 1200);
+                copyStateTimeoutIds.set(button, timeoutId);
             }
         } catch (error) {
             console.error('翻訳結果のコピーに失敗:', error);
