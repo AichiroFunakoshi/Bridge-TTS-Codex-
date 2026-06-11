@@ -94,13 +94,19 @@ test('keeps primary controls thumb-friendly in portrait', async ({ page }) => {
         const japaneseRect = document.querySelector('#startJapaneseBtn').getBoundingClientRect();
         const englishRect = document.querySelector('#startEnglishBtn').getBoundingClientRect();
         const resetRect = document.querySelector('#resetBtn').getBoundingClientRect();
+        const settingsRect = document.querySelector('#settingsButton').getBoundingClientRect();
+        const controlsRect = document.querySelector('.control-container').getBoundingClientRect();
+        const statusRect = document.querySelector('.status-container').getBoundingClientRect();
 
         return {
             sameRow: Math.abs(japaneseRect.top - englishRect.top) < 4,
             similarPrimaryWidth: Math.abs(japaneseRect.width - englishRect.width) < 8,
             primaryMinHeight: Math.min(japaneseRect.height, englishRect.height),
             resetWidth: resetRect.width,
-            japaneseWidth: japaneseRect.width
+            settingsWidth: settingsRect.width,
+            japaneseWidth: japaneseRect.width,
+            controlsNearBottom: window.innerHeight - controlsRect.bottom < 2,
+            statusNearTop: statusRect.top < 2
         };
     });
 
@@ -108,6 +114,9 @@ test('keeps primary controls thumb-friendly in portrait', async ({ page }) => {
     expect(layout.similarPrimaryWidth).toBe(true);
     expect(layout.primaryMinHeight).toBeGreaterThanOrEqual(44);
     expect(layout.resetWidth).toBeLessThan(layout.japaneseWidth);
+    expect(layout.settingsWidth).toBeLessThan(layout.japaneseWidth);
+    expect(layout.controlsNearBottom).toBe(true);
+    expect(layout.statusNearTop).toBe(true);
 });
 
 test('keeps core text contrast readable', async ({ page }) => {

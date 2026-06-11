@@ -12,7 +12,7 @@ body {
     min-height: 100dvh; /* iOS Safari対応 */
     background-color: #f5f5f7;
     color: #333;
-    padding: 5px;
+    padding: 0;
     touch-action: manipulation;
 }
 
@@ -33,7 +33,7 @@ body.modal-open {
     gap: 5px;
     max-width: 800px;
     margin: 0 auto;
-    padding: 0;
+    padding: calc(56px + env(safe-area-inset-top, 0px)) 10px calc(96px + env(safe-area-inset-bottom, 0px));
     width: 100%;
     height: 100%;
 }
@@ -57,23 +57,51 @@ body.modal-open {
     margin: 0 auto;
 }
 
-.control-container {
+.status-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 20;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: center;
     gap: 5px;
-    margin-bottom: 5px;
+    min-height: calc(54px + env(safe-area-inset-top, 0px));
+    padding: calc(8px + env(safe-area-inset-top, 0px)) 10px 8px;
+    background-color: rgba(245, 245, 247, 0.94);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     width: 100%;
 }
 
+.control-container {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 30;
+    width: 100%;
+    padding: 10px 10px calc(10px + env(safe-area-inset-bottom, 0px));
+    background-color: rgba(255, 255, 255, 0.96);
+    border-top: 1px solid rgba(0, 0, 0, 0.08);
+    box-shadow: 0 -10px 28px rgba(31, 41, 55, 0.10);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+}
+
 .button-group {
-    display: flex;
-    gap: 8px; /* 10px→8px 余白削減（タッチターゲットは維持）*/
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 48px 48px;
+    gap: 8px;
     justify-content: center;
-    min-height: 44px;
-    flex-wrap: wrap;
+    align-items: center;
+    min-height: 56px;
     width: 100%;
     max-width: 520px;
+    margin: 0 auto;
 }
 
 .language-button {
@@ -81,17 +109,17 @@ body.modal-open {
     align-items: center;
     justify-content: center;
     gap: 6px;
-    padding: 8px 16px;
-    min-height: 44px;
+    padding: 8px 14px;
+    min-height: 56px;
     border-radius: 20px;
     background-color: #1a73e8;
     color: white;
-    font-weight: 500;
-    font-size: 14px;
+    font-weight: 800;
+    font-size: 17px;
     cursor: pointer;
     border: none;
     outline: none;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 6px 14px rgba(0, 0, 0, 0.14);
     transition: all 0.2s ease;
 }
 
@@ -103,12 +131,10 @@ body.modal-open {
 
 .language-button.japanese {
     background-color: #e74c3c;
-    flex: 1 1 132px;
 }
 
 .language-button.english {
     background-color: #2ecc71;
-    flex: 1 1 132px;
 }
 
 .language-button.stop {
@@ -117,12 +143,14 @@ body.modal-open {
 }
 
 .language-button.reset {
-    background-color: #f39c12;
-    flex: 0 0 44px;
+    background-color: #eef2f7;
+    color: #374151;
+    box-shadow: none;
 }
 
 .language-button.stop.visible {
     display: flex;
+    grid-column: 1 / 3;
 }
 
 .language-button:active:not(:disabled) {
@@ -498,26 +526,24 @@ body.modal-open {
 }
 
 .settings-button {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background-color: rgba(255,255,255,0.8);
+    position: static;
+    background-color: #eef2f7;
     border: none;
-    color: #1a73e8;
+    color: #374151;
     cursor: pointer;
-    font-size: 20px;
+    font-size: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 36px;
-    height: 36px;
+    width: 48px;
+    height: 56px;
     border-radius: 50%;
     transition: background-color 0.2s;
-    z-index: 10;
+    z-index: 1;
 }
 
 .settings-button:hover {
-    background-color: rgba(26, 115, 232, 0.1);
+    background-color: #e8f0fe;
 }
 
 .error-message {
@@ -644,11 +670,11 @@ body.modal-open {
 
 @media (max-width: 600px) {
     body {
-        padding: 5px; /* 余白削減を維持 */
+        padding: 0;
     }
 
     .container {
-        padding: 0; /* 余白削減を維持 */
+        padding: calc(56px + env(safe-area-inset-top, 0px)) 10px calc(96px + env(safe-area-inset-bottom, 0px));
     }
 
     .app-title {
@@ -659,10 +685,9 @@ body.modal-open {
         font-size: 13px;
     }
 
-    /* ボタンは横並びに変更（縦並びから改善） */
     .button-group {
-        flex-direction: row;
-        flex-wrap: wrap;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 48px 48px;
         gap: 6px;
         width: 100%;
         max-width: 100%;
@@ -671,13 +696,9 @@ body.modal-open {
 
     .language-button {
         justify-content: center;
-        padding: 8px 14px;
-        font-size: 13px;
-    }
-
-    .language-button.japanese,
-    .language-button.english {
-        flex-basis: calc((100% - 56px) / 2);
+        padding: 8px 10px;
+        font-size: 16px;
+        min-height: 56px;
     }
 
     /* モバイルでのアイコンサイズ調整 */
@@ -687,8 +708,7 @@ body.modal-open {
     }
 
     .language-button.reset {
-        flex-basis: 44px;
-        padding: 8px 10px;
+        padding: 8px;
     }
 
     .result-container {
@@ -1362,33 +1382,32 @@ body.modal-open {
    ======================================== */
 @media (orientation: landscape) {
     body {
-        padding: 3px;
+        padding: 0;
     }
 
     .container {
         max-width: 100%;
         gap: 3px;
+        padding: calc(42px + env(safe-area-inset-top, 0px)) 6px calc(70px + env(safe-area-inset-bottom, 0px));
     }
 
     .control-container {
-        flex-direction: row;
-        justify-content: center;
-        gap: 8px;
-        margin-bottom: 3px;
+        padding: 6px 8px calc(6px + env(safe-area-inset-bottom, 0px));
     }
 
     .button-group {
-        flex-direction: row;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) 44px 44px;
         gap: 6px;
-        width: auto;
-        max-width: none;
+        width: 100%;
+        max-width: 520px;
+        min-height: 44px;
     }
 
     .language-button {
-        flex: 0 0 auto;
         padding: 6px 12px;
         font-size: 13px;
         border-radius: 16px;
+        min-height: 44px;
     }
 
     .language-button .language-icon {
@@ -1399,6 +1418,11 @@ body.modal-open {
     .status {
         font-size: 12px;
         padding: 3px 10px;
+    }
+
+    .status-container {
+        min-height: calc(40px + env(safe-area-inset-top, 0px));
+        padding: calc(5px + env(safe-area-inset-top, 0px)) 8px 5px;
     }
 
     /* 翻訳エリアを左右分割 */
@@ -1451,10 +1475,8 @@ body.modal-open {
     }
 
     .settings-button {
-        top: 3px;
-        right: 3px;
-        width: 30px;
-        height: 30px;
+        width: 44px;
+        height: 44px;
         font-size: 16px;
     }
 
@@ -1465,10 +1487,6 @@ body.modal-open {
 }
 
 @media (orientation: landscape) and (max-height: 420px) {
-    .control-container {
-        gap: 5px;
-    }
-
     .button-group {
         min-height: 36px;
     }
@@ -1476,6 +1494,11 @@ body.modal-open {
     .language-button {
         min-height: 36px;
         padding: 5px 10px;
+    }
+
+    .settings-button {
+        width: 40px;
+        height: 36px;
     }
 
     .result-box {
