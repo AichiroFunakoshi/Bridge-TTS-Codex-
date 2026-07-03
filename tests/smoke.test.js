@@ -272,7 +272,7 @@ test('parses translator service stream lines and payloads', async ({ page }) => 
         stream: true,
         temperature: 0.3,
         systemPrompt: 'system prompt',
-        userPrompt: '以下の日本語テキストを翻訳してください:\n\nこんにちは'
+        userPrompt: '以下の日本語テキストを英語に翻訳してください:\n\nこんにちは'
     });
     expect(consoleErrors).toEqual(expect.arrayContaining([
         expect.stringContaining('ストリーミングレスポンス解析エラー')
