@@ -43,7 +43,7 @@ fetch_and_unzip() { # $1=zipファイル名 $2=展開先ディレクトリ名
     echo "  $2: 導入済み"
     return 0
   fi
-  curl -sSL -C - -o "$zip" --max-time 35 "$BASE/$1" || true
+  curl -sSL -C - -o "$zip" --max-time 30 "$BASE/$1" || true
   if ! unzip -q -t "$zip" >/dev/null 2>&1; then
     echo "  $1: ダウンロード途中（再実行で続きから再開します）"
     return 1
@@ -53,10 +53,10 @@ fetch_and_unzip() { # $1=zipファイル名 $2=展開先ディレクトリ名
   echo "  $2: 導入完了"
 }
 
-PENDING=0
-fetch_and_unzip "chromium-$SUFFIX.zip" "chromium-$REV" || PENDING=1
-fetch_and_unzip "chromium-headless-shell-$SUFFIX.zip" "chromium_headless_shell-$REV" || PENDING=1
-if [ "$PENDING" = "1" ]; then
+# シェル45秒制限内に収めるため、未完了が出た時点で即終了する
+# （1回の実行で試みるダウンロードは実質1本。完了表示まで再実行する）
+if ! fetch_and_unzip "chromium-$SUFFIX.zip" "chromium-$REV" || \
+   ! fetch_and_unzip "chromium-headless-shell-$SUFFIX.zip" "chromium_headless_shell-$REV"; then
   echo "⏳ ダウンロード未完了。このスクリプトをもう一度実行してください。"
   exit 2
 fi
