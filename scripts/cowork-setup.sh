@@ -24,14 +24,21 @@ if [ "$(uname -s)" = "Darwin" ]; then
 fi
 
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-cd "$REPO_DIR"
+if [ -z "$REPO_DIR" ] || ! cd "$REPO_DIR"; then
+  echo "❌ リポジトリディレクトリに移動できません: ${REPO_DIR:-（解決失敗）}" >&2
+  exit 1
+fi
 
 echo "== 1/4 gitロック掃除 =="
 rm -f .git/HEAD.lock .git/index.lock .git/ORIG_HEAD.lock .git/objects/*/tmp_obj_* 2>/dev/null \
   || echo "  (削除不可のロックあり: Coworkのファイル削除許可を得るか、Mac側で掃除する)"
 
 echo "== 2/4 Chromiumダウンロード =="
-REV=$(node -e "console.log(require('$REPO_DIR/node_modules/playwright-core/browsers.json').browsers.find(b=>b.name==='chromium').revision)")
+REV=$(node -e "console.log(require('$REPO_DIR/node_modules/playwright-core/browsers.json').browsers.find(b=>b.name==='chromium').revision)" 2>/dev/null)
+if [ -z "$REV" ]; then
+  echo "❌ Chromiumリビジョンを特定できません。npm install 済みか確認してください。" >&2
+  exit 1
+fi
 ARCH=$(uname -m)
 SUFFIX="linux"; [ "$ARCH" = "aarch64" ] && SUFFIX="linux-arm64"
 BASE="https://playwright.download.prss.microsoft.com/dbazure/download/playwright/builds/chromium/$REV"
@@ -49,7 +56,11 @@ fetch_and_unzip() { # $1=zipファイル名 $2=展開先ディレクトリ名
     return 1
   fi
   mkdir -p "$dir"
-  unzip -q -o "$zip" -d "$dir" && touch "$dir/INSTALLATION_COMPLETE" && rm -f "$zip"
+  if ! unzip -q -o "$zip" -d "$dir"; then
+    echo "  ❌ $2: 展開失敗（ディスク容量等を確認。zipは保持したので再実行可能）" >&2
+    return 1
+  fi
+  touch "$dir/INSTALLATION_COMPLETE" && rm -f "$zip"
   echo "  $2: 導入完了"
 }
 
