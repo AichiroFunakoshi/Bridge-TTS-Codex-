@@ -87,7 +87,10 @@ const ErrorReporter = {
         if (Array.isArray(previous.logs) && previous.logs.length > 0) {
             this.logs = previous.logs.concat(this.logs).slice(-this.maxLogs);
         }
-        const lastBeat = previous.t ? new Date(previous.t).toISOString() : '不明';
+        // previous.t が不正値（範囲外の数値等）だと toISOString() が例外を投げるため検証する
+        const lastBeat = Number.isFinite(previous.t) && Math.abs(previous.t) <= 8.64e15
+            ? new Date(previous.t).toISOString()
+            : '不明';
         console.error(
             `前回のセッションが音声入力中に異常終了した可能性があります（フリーズ/強制終了）。最終ハートビート: ${lastBeat}。直前のログを復元しました。`
         );
